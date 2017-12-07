@@ -1,0 +1,12 @@
+                        //BluetoothClass bc = mmDevice.BluetoothClass;
+                        //Type type = bc.GetType();
+                        //int a = 0;
+                        //Type[] typeArray = { typeof(int) };
+                        //MethodInfo methodInfo = type.GetMethod("CreateInsecureRfcommSocket", typeArray);
+                        //if (methodInfo != null)
+                        //{
+                        //    ParameterInfo[] parameters = methodInfo.GetParameters();
+                        //    object classInstance = Activator.CreateInstance(type, null);
+                        //    object[] parametersArray = new object[] { 1 };
+                        //    mmSocket = (BluetoothSocket)methodInfo.Invoke(classInstance, parametersArray);                           
+                        //}

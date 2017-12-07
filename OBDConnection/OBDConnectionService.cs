@@ -17,6 +17,8 @@ using System.Runtime.CompilerServices;
 using Java.Lang;
 using System.IO;
 using Java.Util;
+using System.Reflection;
+using Android.Util;
 
 namespace OBDConnection
 {
@@ -28,6 +30,10 @@ namespace OBDConnection
     /// </summary>
     public class OBDConnectionService
     {
+        // Debugging
+        private const string TAG = "BluetoothChatService";
+        private const bool Debug = true;
+
         // Name for the SDP record when creating server socket
         private const string NAME = "BluetoothChat";
 
@@ -434,21 +440,21 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "create() failed", e);
+                    Log.Error(TAG, "create() in connected failed", e);
                 }
                 mmSocket = tmp;
             }
 
             public override void Run()
             {
-                //Log.Info(TAG, "BEGIN mConnectThread");
+                Log.Info(TAG, "BEGIN mConnectThread");
 
                 Name = "ConnectThread";
 
                 // Always cancel discovery because it will slow down a connection
                 _service._adapter.CancelDiscovery();
 
-                // Make a connection to the BluetoothSocket
+                // Make a connection to the BluetoothSocket in the standard way
                 try
                 {
                     // This is a blocking call and will only return on a
@@ -457,20 +463,35 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    _service.ConnectionFailed();
-                    // Close the socket
+                    Log.Error(TAG, "connect() failed", e);
+
+                    /* Trying the alternative way: this is needed with android>4.2 */
                     try
                     {
-                        mmSocket.Close();
+                        IntPtr createRfcommSocket = JNIEnv.GetMethodID(mmDevice.Class.Handle, "createRfcommSocket", "(I)Landroid/bluetooth/BluetoothSocket;");
+                        IntPtr _socket = JNIEnv.CallObjectMethod(mmDevice.Handle, createRfcommSocket, new Android.Runtime.JValue(1));
+                        mmSocket = Java.Lang.Object.GetObject<BluetoothSocket>(_socket, JniHandleOwnership.TransferLocalRef);
+                        mmSocket.Connect();
                     }
-                    catch (Java.IO.IOException e2)
+                    catch (Java.IO.IOException e1)
                     {
-                        //Log.Error(TAG, "unable to close() socket during connection failure", e2);
-                    }
+                        Log.Error(TAG, "fallback failed", e);
 
-                    // Start the service over to restart listening mode
-                    _service.Start();
-                    return;
+                        _service.ConnectionFailed();
+                        // Close the socket
+                        try
+                        {
+                            mmSocket.Close();
+                        }
+                        catch (Java.IO.IOException e2)
+                        {
+                            Log.Error(TAG, "unable to close() socket during connection failure", e2);
+                        }
+
+                        // Start the service over to restart listening mode
+                        _service.Start();
+                        return;
+                    }
                 }
 
                 // Reset the ConnectThread because we're done
@@ -491,7 +512,7 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "close() of connect socket failed", e);
+                    Log.Error(TAG, "close() of connect socket failed", e);
                 }
             }
         }
@@ -525,7 +546,7 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "temp sockets not created", e);
+                    Log.Error(TAG, "temp sockets not created", e);
                 }
 
                 mmInStream = tmpIn;
@@ -534,7 +555,7 @@ namespace OBDConnection
 
             public override void Run()
             {
-                //Log.Info(TAG, "BEGIN mConnectedThread");
+                Log.Info(TAG, "BEGIN mConnectedThread");
 
                 byte[] buffer = new byte[1024];//1024
                 int bytes;
@@ -553,7 +574,7 @@ namespace OBDConnection
                     }
                     catch (Java.IO.IOException e)
                     {
-                        //Log.Error(TAG, "disconnected", e);
+                        Log.Error(TAG, "disconnected", e);
 
                         _service.ConnectionLost();
                         break;

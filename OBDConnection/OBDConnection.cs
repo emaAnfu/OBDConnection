@@ -200,7 +200,7 @@ namespace OBDConnection
                 //TimerCallback timerDelegate = new TimerCallback(ManageTimer);
                 //// Create a timer that waits one second, then invokes every second.
                 //timer_rpm = new Timer(timerDelegate, speedPeriodicRequest, 1000, 2000);
-                CreateTimer(timer_rpm, myHandler, Commands.OBD_rpmCommand, 2000);
+                timer_rpm = CreateTimer(myHandler, Commands.OBD_rpmCommand, 2000);
             };
             button_stopSendRPM = FindViewById<Button>(Resource.Id.button_stopSendRPM);
             button_stopSendRPM.Click += delegate (object sender, EventArgs e) {
@@ -225,14 +225,14 @@ namespace OBDConnection
         }
 
         /* Prepares and starts the desired timer */
-        private void CreateTimer(Timer tmr, Handler handler, string command, int period)
+        private Timer CreateTimer(Handler handler, string command, int period)
         {
             // Create the object which links timer and request
             PeriodicCommandRequest speedPeriodicRequest = new PeriodicCommandRequest(handler, command);
             // Create the delegate that invokes methods for the timer.
             TimerCallback timerDelegate = new TimerCallback(ManageTimer);
             // Create a timer that waits one second, then invokes every second.
-            tmr = new Timer(timerDelegate, speedPeriodicRequest, 1000, period);
+            return new Timer(timerDelegate, speedPeriodicRequest, 1000, period);
         }
 
         protected override void OnPause()
@@ -300,7 +300,7 @@ namespace OBDConnection
             // Check that we're actually connected before trying anything
             if (connectionService.GetState() != OBDConnectionService.STATE_CONNECTED)
             {
-                Toast.MakeText(this, "not_connected", ToastLength.Short).Show();
+                Toast.MakeText(this, Resource.String.not_connected, ToastLength.Short).Show();
                 return;
             }
 
@@ -363,7 +363,7 @@ namespace OBDConnection
                         // construct a string from the valid bytes in the buffer
                         var readMessage = new Java.Lang.String(readBuf, 0, msg.Arg1);
                         OBDConnection.conversationArrayAdapter.Add(OBDConnection.connectedDeviceName + ":  " + readMessage);
-                        Toast.MakeText(Application.Context, "Message received", ToastLength.Short).Show();
+                        //Toast.MakeText(Application.Context, "Message received", ToastLength.Short).Show();
                         break;
                     case MESSAGE_DEVICE_NAME:
                         // save the connected device's name
@@ -426,7 +426,7 @@ namespace OBDConnection
                     {
                         // User did not enable Bluetooth or an error occured
                         //Log.Debug(TAG, "BT not enabled");
-                        Toast.MakeText(this, "bt_not_enabled_leaving", ToastLength.Short).Show();
+                        Toast.MakeText(this, Resource.String.bt_not_enabled_leaving, ToastLength.Short).Show();
                         Finish();
                     }
                     break;

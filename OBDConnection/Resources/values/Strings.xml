@@ -5,12 +5,12 @@
 
     <!--  BluetoothConnection -->
     <string name="send">Send</string>
-    <string name="not_connected">You are not connected to a device</string>
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving game.</string>
+    <string name="not_connected">Not connected.</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving app.</string>
     <string name="title_connecting">Connecting...</string>
     <string name="title_connected_to">Connected: </string>
-    <string name="title_not_connected">Not connected</string>
-    <string name="im_discoverable">I am discoverable</string>
+    <string name="title_not_connected">Not connected.</string>
+    <string name="im_discoverable">I am discoverable.</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">Scanning for devices...</string>

@@ -1,3 +1,6 @@
+
+
+
 using Android.App;
 using Android.Widget;
 using Android.OS;
@@ -10,7 +13,7 @@ using System;
 
 namespace OBDConnection
 {
-    [Activity(Label = "OBDConnection", MainLauncher = true, Icon = "@drawable/icon")]
+    [Activity(Label = "OBDConnection", MainLauncher = true, Icon = "@drawable/fiestaIcon")]
     class OBDConnection : Activity
     {
         // Intent request codes
@@ -46,6 +49,13 @@ namespace OBDConnection
         private ListView conversationView;
         private EditText outEditText;
         private Button sendButton;
+        // AT
+        private Button button_atReset;
+        private Button button_atAutomaticProtocol;
+        private Button button_atReadVoltage;
+        // OBD
+        private Button button_obdRPM;
+        private Button button_obdSpeed;
 
         // Array adapter for the conversation thread
         protected ArrayAdapter<string> conversationArrayAdapter;
@@ -134,6 +144,42 @@ namespace OBDConnection
                 // Send a message using content of the edit text widget
                 var view = FindViewById<TextView>(Resource.Id.edit_text_out);
                 var message = new Java.Lang.String(view.Text);
+                SendMessage(message);
+            };
+
+            /* Initialize the AT commands buttons with a listener that for click events */
+
+            button_atReset = FindViewById<Button>(Resource.Id.button_atReset);
+            button_atReset.Click += delegate (object sender, EventArgs e) {
+                // Send a message with the command + the carriage return
+                var message = new Java.Lang.String(Commands.AT_Reset + "\r");
+                SendMessage(message);
+            };
+            button_atAutomaticProtocol = FindViewById<Button>(Resource.Id.button_atAutomaticProtocol);
+            button_atAutomaticProtocol.Click += delegate (object sender, EventArgs e) {
+                // Send a message with the command + the carriage return
+                var message = new Java.Lang.String(Commands.AT_AutomaticProtocol + "\r");
+                SendMessage(message);
+            };
+            button_atReadVoltage = FindViewById<Button>(Resource.Id.button_atReadVoltage);
+            button_atReadVoltage.Click += delegate (object sender, EventArgs e) {
+                // Send a message with the command + the carriage return
+                var message = new Java.Lang.String(Commands.AT_ReadVoltage + "\r");
+                SendMessage(message);
+            };
+
+            /* Initialize the OBD commands buttons with a listener that for click events */
+
+            button_obdRPM = FindViewById<Button>(Resource.Id.button_obdRPM);
+            button_obdRPM.Click += delegate (object sender, EventArgs e) {
+                // Send a message with the command + the carriage return
+                var message = new Java.Lang.String(Commands.OBD_rpmCommand + "\r");
+                SendMessage(message);
+            };
+            button_obdSpeed = FindViewById<Button>(Resource.Id.button_obdSpeed);
+            button_obdSpeed.Click += delegate (object sender, EventArgs e) {
+                // Send a message with the command + the carriage return
+                var message = new Java.Lang.String(Commands.OBD_speedCommand + "\r");
                 SendMessage(message);
             };
 
@@ -261,7 +307,7 @@ namespace OBDConnection
                         // construct a string from the valid bytes in the buffer
                         var readMessage = new Java.Lang.String(readBuf, 0, msg.Arg1);
                         OBDConnection.conversationArrayAdapter.Add(OBDConnection.connectedDeviceName + ":  " + readMessage);
-                        Toast.MakeText(Application.Context, "received", ToastLength.Short).Show();
+                        Toast.MakeText(Application.Context, "Message received", ToastLength.Short).Show();
                         break;
                     case MESSAGE_DEVICE_NAME:
                         // save the connected device's name

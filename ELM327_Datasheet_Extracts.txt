@@ -1,0 +1,25 @@
+
+SAE J1979 standard defines ten possible diagnostic test modes:
+01 - show current data
+02 - show freeze frame data
+03 - show diagnostic trouble codes
+04 - clear trouble codes and stored values
+05 - test results, oxygen sensors
+...
+09 - request vehicle information
+0A - request permanent trouble codes
+
+PID are the two following char that identify the parameter 
+identification.
+00 - shows which PIDs are supported by a certain mode
+
+Each response from the ELM327 after a OBD command is composed by:
+XX YY ZZZZ
+where:	XX is the mode you sent + 40 
+	YY is the PID you sent
+	ZZZZ are the data requested
+
+N.B. Pag. 31: you can add an hex digit at the end of you OBD command
+to tell ELM327 how many lines it should wait for the response. This
+can increase the response time. The default time for the AT ST timer
+is 200 msec.

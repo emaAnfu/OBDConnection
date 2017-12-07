@@ -7,8 +7,8 @@
   <uses-permission android:name="android.permission.BLUETOOTH" />
   <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-  <application android:label="OBDConnection" android:name="android.app.Application" android:allowBackup="true" android:icon="@drawable/icon" android:debuggable="true">
-    <activity android:icon="@drawable/icon" android:label="OBDConnection" android:name="md51e3231ad22bfbc5619bec090cfdb3a4c.OBDConnection">
+  <application android:label="OBDConnection" android:name="android.app.Application" android:allowBackup="true" android:icon="@drawable/fiestaicon" android:debuggable="true">
+    <activity android:icon="@drawable/fiestaicon" android:label="OBDConnection" android:name="md51e3231ad22bfbc5619bec090cfdb3a4c.OBDConnection">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

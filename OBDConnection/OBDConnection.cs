@@ -11,6 +11,9 @@ using Android.Views;
 using Android.Views.InputMethods;
 using System;
 
+using System.Threading;
+//using System.Timers;
+
 namespace OBDConnection
 {
     [Activity(Label = "OBDConnection", MainLauncher = true, Icon = "@drawable/fiestaIcon")]
@@ -28,6 +31,10 @@ namespace OBDConnection
         public const int MESSAGE_WRITE = 3;
         public const int MESSAGE_DEVICE_NAME = 4;
         public const int MESSAGE_TOAST = 5;
+
+        // Message types sent from the Timer Handler
+        public const int TIMER_RPM_RAISED = 6;
+        public const int TIMER_SPEED_RAISED = 7;
 
         // Key names received from the BluetoothChatService Handler
         public const string DEVICE_NAME = "device_name";
@@ -56,6 +63,13 @@ namespace OBDConnection
         // OBD
         private Button button_obdRPM;
         private Button button_obdSpeed;
+        // Multiple requests
+        private Button button_startSendRPM;
+        private Button button_stopSendRPM;
+
+        // Timers for the periodic requests
+        Timer timer_rpm;
+        Timer speed_rpm;
 
         // Array adapter for the conversation thread
         protected ArrayAdapter<string> conversationArrayAdapter;
@@ -118,6 +132,9 @@ namespace OBDConnection
 
         private void SetupConnection()
         {
+            // Initialize the BluetoothChatService to perform bluetooth connections
+            Handler myHandler = new MyHandler(this);
+            connectionService = new OBDConnectionService(this, myHandler);
 
             // Here initialize the main activity layout:
 
@@ -151,46 +168,71 @@ namespace OBDConnection
 
             button_atReset = FindViewById<Button>(Resource.Id.button_atReset);
             button_atReset.Click += delegate (object sender, EventArgs e) {
-                // Send a message with the command + the carriage return
-                var message = new Java.Lang.String(Commands.AT_Reset + "\r");
-                SendMessage(message);
+                SendCommand(Commands.AT_Reset);
             };
             button_atAutomaticProtocol = FindViewById<Button>(Resource.Id.button_atAutomaticProtocol);
             button_atAutomaticProtocol.Click += delegate (object sender, EventArgs e) {
-                // Send a message with the command + the carriage return
-                var message = new Java.Lang.String(Commands.AT_AutomaticProtocol + "\r");
-                SendMessage(message);
+                SendCommand(Commands.AT_AutomaticProtocol);
             };
             button_atReadVoltage = FindViewById<Button>(Resource.Id.button_atReadVoltage);
             button_atReadVoltage.Click += delegate (object sender, EventArgs e) {
-                // Send a message with the command + the carriage return
-                var message = new Java.Lang.String(Commands.AT_ReadVoltage + "\r");
-                SendMessage(message);
+                SendCommand(Commands.AT_ReadVoltage);
             };
 
             /* Initialize the OBD commands buttons with a listener that for click events */
 
             button_obdRPM = FindViewById<Button>(Resource.Id.button_obdRPM);
             button_obdRPM.Click += delegate (object sender, EventArgs e) {
-                // Send a message with the command + the carriage return
-                var message = new Java.Lang.String(Commands.OBD_rpmCommand + "\r");
-                SendMessage(message);
+                SendCommand(Commands.OBD_rpmCommand);
             };
             button_obdSpeed = FindViewById<Button>(Resource.Id.button_obdSpeed);
             button_obdSpeed.Click += delegate (object sender, EventArgs e) {
-                // Send a message with the command + the carriage return
-                var message = new Java.Lang.String(Commands.OBD_speedCommand + "\r");
-                SendMessage(message);
+                SendCommand(Commands.OBD_speedCommand);
+            };
+
+            /* Initialize the buttons for periodic requests with a listener that for click events */
+
+            button_startSendRPM = FindViewById<Button>(Resource.Id.button_startSendRPM);
+            button_startSendRPM.Click += delegate (object sender, EventArgs e) {
+                //// Create the object which links timer and request
+                //PeriodicCommandRequest speedPeriodicRequest = new PeriodicCommandRequest(myHandler, Commands.OBD_rpmCommand);
+                //// Create the delegate that invokes methods for the timer.
+                //TimerCallback timerDelegate = new TimerCallback(ManageTimer);
+                //// Create a timer that waits one second, then invokes every second.
+                //timer_rpm = new Timer(timerDelegate, speedPeriodicRequest, 1000, 2000);
+                CreateTimer(timer_rpm, myHandler, Commands.OBD_rpmCommand, 2000);
+            };
+            button_stopSendRPM = FindViewById<Button>(Resource.Id.button_stopSendRPM);
+            button_stopSendRPM.Click += delegate (object sender, EventArgs e) {
+                timer_rpm.Dispose();
             };
 
             // Here there are universal operations:
 
             // Initialize the BluetoothChatService to perform bluetooth connections
-            connectionService = new OBDConnectionService(this, new MyHandler(this));
+            // -> done at the beginning of this function
 
             // Initialize the buffer for outgoing messages
             outStringBuffer = new StringBuffer("");
             outEditText.Text = string.Empty;
+        }
+
+        /* Called by the timer delegate when timer expires */
+        private void ManageTimer(object state)
+        {
+            PeriodicCommandRequest ts = (PeriodicCommandRequest)state;
+            ts.handler.ObtainMessage(OBDConnection.TIMER_RPM_RAISED, -1, -1).SendToTarget();
+        }
+
+        /* Prepares and starts the desired timer */
+        private void CreateTimer(Timer tmr, Handler handler, string command, int period)
+        {
+            // Create the object which links timer and request
+            PeriodicCommandRequest speedPeriodicRequest = new PeriodicCommandRequest(handler, command);
+            // Create the delegate that invokes methods for the timer.
+            TimerCallback timerDelegate = new TimerCallback(ManageTimer);
+            // Create a timer that waits one second, then invokes every second.
+            tmr = new Timer(timerDelegate, speedPeriodicRequest, 1000, period);
         }
 
         protected override void OnPause()
@@ -232,6 +274,19 @@ namespace OBDConnection
                 discoverableIntent.PutExtra(BluetoothAdapter.ExtraDiscoverableDuration, 300);
                 StartActivity(discoverableIntent);
             }
+        }
+
+        /// <summary>
+        /// Sends a command.
+        /// </summary>
+        /// <param name="cmd">
+        /// The command to send
+        /// </param>
+        public void SendCommand(string cmd)
+        {
+            // adds the carriage return character
+            var message = new Java.Lang.String(cmd + "\r");
+            SendMessage(message);
         }
 
         /// <summary>
@@ -280,6 +335,7 @@ namespace OBDConnection
             {
                 switch (msg.What)
                 {
+                    /* Messages from OBDConnectionServices */
                     case MESSAGE_STATE_CHANGE:
                         switch (msg.Arg1)
                         {
@@ -317,7 +373,26 @@ namespace OBDConnection
                     case MESSAGE_TOAST:
                         Toast.MakeText(Application.Context, msg.Data.GetString(TOAST), ToastLength.Short).Show();
                         break;
+                    /* Messages from timer delegate */
+                    case TIMER_RPM_RAISED:
+                        OBDConnection.SendCommand(Commands.OBD_rpmCommand);
+                        break;
+                    case TIMER_SPEED_RAISED:
+                        OBDConnection.SendCommand(Commands.OBD_speedCommand);
+                        break;
                 }
+            }
+        }
+
+        public class PeriodicCommandRequest
+        {
+            public Handler handler;
+            public string cmd;
+
+            public PeriodicCommandRequest(Handler h, string command)
+            {
+                handler = h;
+                cmd = command;
             }
         }
 

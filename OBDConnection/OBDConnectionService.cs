@@ -31,10 +31,10 @@ namespace OBDConnection
         // Name for the SDP record when creating server socket
         private const string NAME = "BluetoothChat";
 
-        // UUID for communication with another phone
-        private static UUID MY_UUID_OBD = UUID.FromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
-
         // UUID for "serial interface"
+        private static UUID MY_UUID_OBD = UUID.FromString("00001101-0000-1000-8000-00805F9B34FB");
+
+        // UUID for communication with another phone
         private static UUID MY_UUID_PHONE = UUID.FromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
 
         // Member fields
@@ -429,7 +429,7 @@ namespace OBDConnection
                     tmp = device.CreateInsecureRfcommSocketToServiceRecord(MY_UUID_PHONE);
 #endif
 #if (TO_OBD)
-                    tmp = device.CreateInsecureRfcommSocketToServiceRecord(MY_UUID_OBD);
+                    tmp = device.CreateRfcommSocketToServiceRecord(MY_UUID_OBD);
 #endif
                 }
                 catch (Java.IO.IOException e)

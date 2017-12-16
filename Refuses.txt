@@ -16,3 +16,5 @@ PID: 221E12
 Long Name: Gear Selection
 Short Name: Gear
 Equation: A
+
+string[] a = System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(filename));

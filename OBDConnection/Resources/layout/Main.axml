@@ -28,6 +28,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="ATrv" />
+        <Button
+            android:id="@+id/button_atEchoOff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ATE0" />
+        <Button
+            android:id="@+id/button_atLinefeedsOff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ATL0" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -89,6 +101,16 @@
             android:layout_weight="1"
             android:text="stop speed" />
     </LinearLayout>
+    <Button
+      android:id="@+id/button_saveData"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Save data" />
+    <Button
+      android:id="@+id/button_loadData"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Load data" />
     <ListView
         android:id="@+id/in"
         android:layout_width="match_parent"

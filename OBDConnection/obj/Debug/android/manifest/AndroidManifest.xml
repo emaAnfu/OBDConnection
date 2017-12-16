@@ -3,10 +3,12 @@
   <!--suppress UsesMinSdkAttributes-->
   <uses-sdk android:minSdkVersion="19" />
   <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.BLUETOOTH" />
   <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <application android:label="OBDConnection" android:name="android.app.Application" android:allowBackup="true" android:icon="@drawable/fiestaicon" android:debuggable="true">
     <activity android:icon="@drawable/fiestaicon" android:label="OBDConnection" android:name="md51e3231ad22bfbc5619bec090cfdb3a4c.OBDConnection">
       <intent-filter>

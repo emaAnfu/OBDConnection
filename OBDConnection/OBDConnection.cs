@@ -66,6 +66,8 @@ namespace OBDConnection
         // Multiple requests
         private Button button_startSendRPM;
         private Button button_stopSendRPM;
+        private Button button_obdGear1;
+        private Button button_obdGear2;
 
         // Timers for the periodic requests
         Timer timer_rpm;
@@ -188,6 +190,14 @@ namespace OBDConnection
             button_obdSpeed = FindViewById<Button>(Resource.Id.button_obdSpeed);
             button_obdSpeed.Click += delegate (object sender, EventArgs e) {
                 SendCommand(Commands.OBD_speedCommand);
+            };
+            button_obdGear1 = FindViewById<Button>(Resource.Id.button_obdGear1);
+            button_obdGear1.Click += delegate (object sender, EventArgs e) {
+                SendCommand(Commands.OBD_gear1);
+            };
+            button_obdGear2 = FindViewById<Button>(Resource.Id.button_obdGear2);
+            button_obdGear2.Click += delegate (object sender, EventArgs e) {
+                SendCommand(Commands.OBD_gear2);
             };
 
             /* Initialize the buttons for periodic requests with a listener that for click events */

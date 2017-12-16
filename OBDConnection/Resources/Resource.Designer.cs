@@ -72,6 +72,12 @@ namespace OBDConnection
 			// aapt resource value: 0x7f060008
 			public const int button_atReset = 2131099656;
 			
+			// aapt resource value: 0x7f06000d
+			public const int button_obdGear1 = 2131099661;
+			
+			// aapt resource value: 0x7f06000e
+			public const int button_obdGear2 = 2131099662;
+			
 			// aapt resource value: 0x7f06000b
 			public const int button_obdRPM = 2131099659;
 			
@@ -81,26 +87,26 @@ namespace OBDConnection
 			// aapt resource value: 0x7f060006
 			public const int button_scan = 2131099654;
 			
-			// aapt resource value: 0x7f060012
-			public const int button_send = 2131099666;
-			
-			// aapt resource value: 0x7f06000d
-			public const int button_startSendRPM = 2131099661;
-			
-			// aapt resource value: 0x7f06000e
-			public const int button_stopSendRPM = 2131099662;
-			
 			// aapt resource value: 0x7f060014
-			public const int discoverable = 2131099668;
-			
-			// aapt resource value: 0x7f060011
-			public const int edit_text_out = 2131099665;
+			public const int button_send = 2131099668;
 			
 			// aapt resource value: 0x7f06000f
-			public const int @in = 2131099663;
+			public const int button_startSendRPM = 2131099663;
 			
 			// aapt resource value: 0x7f060010
-			public const int linearLayout1 = 2131099664;
+			public const int button_stopSendRPM = 2131099664;
+			
+			// aapt resource value: 0x7f060016
+			public const int discoverable = 2131099670;
+			
+			// aapt resource value: 0x7f060013
+			public const int edit_text_out = 2131099667;
+			
+			// aapt resource value: 0x7f060011
+			public const int @in = 2131099665;
+			
+			// aapt resource value: 0x7f060012
+			public const int linearLayout1 = 2131099666;
 			
 			// aapt resource value: 0x7f060007
 			public const int linearLayout_commands = 2131099655;
@@ -111,8 +117,8 @@ namespace OBDConnection
 			// aapt resource value: 0x7f060003
 			public const int paired_devices = 2131099651;
 			
-			// aapt resource value: 0x7f060013
-			public const int scan = 2131099667;
+			// aapt resource value: 0x7f060015
+			public const int scan = 2131099669;
 			
 			// aapt resource value: 0x7f060000
 			public const int title_left_text = 2131099648;

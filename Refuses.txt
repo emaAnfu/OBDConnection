@@ -10,3 +10,9 @@
                         //    object[] parametersArray = new object[] { 1 };
                         //    mmSocket = (BluetoothSocket)methodInfo.Invoke(classInstance, parametersArray);                           
                         //}
+
+Gear Selection - Informs what gear you are in at all times. Might be handy for those wanting to know what gear they're in while driving gear automatically and to watch how it shifts.
+PID: 221E12
+Long Name: Gear Selection
+Short Name: Gear
+Equation: A

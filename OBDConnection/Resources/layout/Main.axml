@@ -46,6 +46,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Speed" />
+        <Button
+            android:id="@+id/button_obdGear1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gear1" />
+        <Button
+            android:id="@+id/button_obdGear2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gear2" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"

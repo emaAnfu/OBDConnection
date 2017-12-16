@@ -35,6 +35,8 @@ namespace OBDConnection
         /* Actual OBD commands */
         public static string OBD_rpmCommand = "01 0C";
         public static string OBD_speedCommand = "01 0D";
+        public static string OBD_gear1 = "22 1E 12";
+        public static string OBD_gear2 = "11 B3";
 
         /* Properties */
 

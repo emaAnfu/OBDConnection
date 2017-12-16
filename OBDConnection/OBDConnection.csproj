@@ -51,12 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands.cs" />
+    <Compile Include="ListOfCommands.cs" />
+    <Compile Include="OBDCommand.cs" />
     <Compile Include="OBDConnection.cs" />
     <Compile Include="DeviceListActivity.cs" />
     <Compile Include="OBDConnectionService.cs" />
+    <Compile Include="PeriodicCommandRequest.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RPMCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GettingStarted.Xamarin" />

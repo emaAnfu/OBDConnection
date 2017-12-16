@@ -47,17 +47,11 @@
             android:layout_weight="1"
             android:text="Speed" />
         <Button
-            android:id="@+id/button_obdGear1"
+            android:id="@+id/button_seeRPM"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Gear1" />
-        <Button
-            android:id="@+id/button_obdGear2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Gear2" />
+            android:text="See RPM" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -76,29 +70,47 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="stop rpm" />
-    </LinearLayout>  
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout_commands">
+        <Button
+            android:id="@+id/button_startSendSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="start speed" />
+        <Button
+            android:id="@+id/button_stopSendSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="stop speed" />
+    </LinearLayout>
     <ListView
-          android:id="@+id/in"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:stackFromBottom="true"
-          android:transcriptMode="alwaysScroll"
-          android:layout_weight="1" />
-      <LinearLayout
-          android:orientation="horizontal"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:id="@+id/linearLayout1">
-          <EditText
-              android:id="@+id/edit_text_out"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_weight="1"
-              android:layout_gravity="bottom" />
-          <Button
-              android:id="@+id/button_send"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="send" />
-      </LinearLayout>
+        android:id="@+id/in"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"
+        android:layout_weight="1" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout1">
+        <EditText
+            android:id="@+id/edit_text_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="bottom" />
+        <Button
+            android:id="@+id/button_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="send" />
+    </LinearLayout>
 </LinearLayout>

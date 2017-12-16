@@ -12,6 +12,7 @@ using Android.Views.InputMethods;
 using System;
 
 using System.Threading;
+using Android.Util;
 //using System.Timers;
 
 namespace OBDConnection
@@ -19,6 +20,10 @@ namespace OBDConnection
     [Activity(Label = "OBDConnection", MainLauncher = true, Icon = "@drawable/fiestaIcon")]
     class OBDConnection : Activity
     {
+        // Debugging
+        private const string TAG = "OBDConnection";
+        private const bool Debug = true;
+
         // Intent request codes
         // TODO: Make into Enums
         private const int REQUEST_CONNECT_DEVICE = 1;
@@ -66,15 +71,25 @@ namespace OBDConnection
         // Multiple requests
         private Button button_startSendRPM;
         private Button button_stopSendRPM;
-        private Button button_obdGear1;
-        private Button button_obdGear2;
+        private Button button_startSendSpeed;
+        private Button button_stopSendSpeed;
+
+        // Various
+        private Button button_seeRPM;
 
         // Timers for the periodic requests
         Timer timer_rpm;
-        Timer speed_rpm;
+        Timer timer_speed;
 
         // Array adapter for the conversation thread
         protected ArrayAdapter<string> conversationArrayAdapter;
+
+        // Input buffer from bt
+        byte[] readBuf;
+        int lenghtBuf;
+
+        // Command objects
+        RPMCommand r;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -170,51 +185,55 @@ namespace OBDConnection
 
             button_atReset = FindViewById<Button>(Resource.Id.button_atReset);
             button_atReset.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.AT_Reset);
+                SendCommand(ListOfCommands.AT_Reset);
             };
             button_atAutomaticProtocol = FindViewById<Button>(Resource.Id.button_atAutomaticProtocol);
             button_atAutomaticProtocol.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.AT_AutomaticProtocol);
+                SendCommand(ListOfCommands.AT_AutomaticProtocol);
             };
             button_atReadVoltage = FindViewById<Button>(Resource.Id.button_atReadVoltage);
             button_atReadVoltage.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.AT_ReadVoltage);
+                SendCommand(ListOfCommands.AT_ReadVoltage);
             };
 
             /* Initialize the OBD commands buttons with a listener that for click events */
 
             button_obdRPM = FindViewById<Button>(Resource.Id.button_obdRPM);
             button_obdRPM.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.OBD_rpmCommand);
+                //SendCommand(ListOfCommands.OBD_rpmCommand);
+                r = new RPMCommand();
+                r.Run(connectionService, readBuf, lenghtBuf);
             };
             button_obdSpeed = FindViewById<Button>(Resource.Id.button_obdSpeed);
-            button_obdSpeed.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.OBD_speedCommand);
+            button_obdSpeed.Click += delegate (object sender, EventArgs e)
+            {
+                SendCommand(ListOfCommands.OBD_speedCommand);
             };
-            button_obdGear1 = FindViewById<Button>(Resource.Id.button_obdGear1);
-            button_obdGear1.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.OBD_gear1);
-            };
-            button_obdGear2 = FindViewById<Button>(Resource.Id.button_obdGear2);
-            button_obdGear2.Click += delegate (object sender, EventArgs e) {
-                SendCommand(Commands.OBD_gear2);
+
+            button_seeRPM = FindViewById<Button>(Resource.Id.button_seeRPM);
+            button_seeRPM.Click += delegate (object sender, EventArgs e)
+            {
+                conversationArrayAdapter.Add(r.GetFormattedResult());
             };
 
             /* Initialize the buttons for periodic requests with a listener that for click events */
 
             button_startSendRPM = FindViewById<Button>(Resource.Id.button_startSendRPM);
             button_startSendRPM.Click += delegate (object sender, EventArgs e) {
-                //// Create the object which links timer and request
-                //PeriodicCommandRequest speedPeriodicRequest = new PeriodicCommandRequest(myHandler, Commands.OBD_rpmCommand);
-                //// Create the delegate that invokes methods for the timer.
-                //TimerCallback timerDelegate = new TimerCallback(ManageTimer);
-                //// Create a timer that waits one second, then invokes every second.
-                //timer_rpm = new Timer(timerDelegate, speedPeriodicRequest, 1000, 2000);
-                timer_rpm = CreateTimer(myHandler, Commands.OBD_rpmCommand, 2000);
+                timer_rpm = CreateTimer(myHandler, ListOfCommands.OBD_rpmCommand, 250);
             };
             button_stopSendRPM = FindViewById<Button>(Resource.Id.button_stopSendRPM);
             button_stopSendRPM.Click += delegate (object sender, EventArgs e) {
                 timer_rpm.Dispose();
+            };
+
+            button_startSendSpeed = FindViewById<Button>(Resource.Id.button_startSendSpeed);
+            button_startSendSpeed.Click += delegate (object sender, EventArgs e) {
+                timer_speed = CreateTimer(myHandler, ListOfCommands.OBD_speedCommand, 1000);
+            };
+            button_stopSendSpeed = FindViewById<Button>(Resource.Id.button_stopSendSpeed);
+            button_stopSendSpeed.Click += delegate (object sender, EventArgs e) {
+                timer_speed.Dispose();
             };
 
             // Here there are universal operations:
@@ -249,16 +268,16 @@ namespace OBDConnection
         {
             base.OnPause();
 
-            //if (Debug)
-            //    Log.Error(TAG, "- ON PAUSE -");
+            if (Debug)
+                Log.Error(TAG, "- ON PAUSE -");
         }
 
         protected override void OnStop()
         {
             base.OnStop();
 
-            //if (Debug)
-            //    Log.Error(TAG, "-- ON STOP --");
+            if (Debug)
+                Log.Error(TAG, "-- ON STOP --");
         }
 
         protected override void OnDestroy()
@@ -269,14 +288,14 @@ namespace OBDConnection
             if (connectionService != null)
                 connectionService.Stop();
 
-            //if (Debug)
-            //    Log.Error(TAG, "--- ON DESTROY ---");
+            if (Debug)
+                Log.Error(TAG, "--- ON DESTROY ---");
         }
 
         private void EnsureDiscoverable()
         {
-            //if (Debug)
-            //    Log.Debug(TAG, "ensure discoverable");
+            if (Debug)
+                Log.Debug(TAG, "ensure discoverable");
 
             if (bluetoothAdapter.ScanMode != ScanMode.ConnectableDiscoverable)
             {
@@ -317,7 +336,7 @@ namespace OBDConnection
             // Check that there's actually something to send
             if (message.Length() > 0)
             {
-                // Get the message bytes and tell the BluetoothChatService to write
+                // Get the message bytes and tell the BluetoothConnectionService to write
                 byte[] send = message.GetBytes();
                 connectionService.Write(send);
 
@@ -368,11 +387,12 @@ namespace OBDConnection
                         OBDConnection.conversationArrayAdapter.Add("Me: " + writeMessage);
                         break;
                     case MESSAGE_READ:
-                        byte[] readBuf = (byte[])msg.Obj;
+                        OBDConnection.readBuf = (byte[])msg.Obj;
+                        OBDConnection.lenghtBuf = msg.Arg1;
                         //here you can show the message you receive
                         // construct a string from the valid bytes in the buffer
-                        var readMessage = new Java.Lang.String(readBuf, 0, msg.Arg1);
-                        OBDConnection.conversationArrayAdapter.Add(OBDConnection.connectedDeviceName + ":  " + readMessage);
+                        var readMessage = new Java.Lang.String(OBDConnection.readBuf, 0, msg.Arg1);
+                        //OBDConnection.conversationArrayAdapter.Add(OBDConnection.connectedDeviceName + ":  " + readMessage);
                         //Toast.MakeText(Application.Context, "Message received", ToastLength.Short).Show();
                         break;
                     case MESSAGE_DEVICE_NAME:
@@ -385,31 +405,19 @@ namespace OBDConnection
                         break;
                     /* Messages from timer delegate */
                     case TIMER_RPM_RAISED:
-                        OBDConnection.SendCommand(Commands.OBD_rpmCommand);
+                        OBDConnection.SendCommand(ListOfCommands.OBD_rpmCommand);
                         break;
                     case TIMER_SPEED_RAISED:
-                        OBDConnection.SendCommand(Commands.OBD_speedCommand);
+                        OBDConnection.SendCommand(ListOfCommands.OBD_speedCommand);
                         break;
                 }
             }
         }
 
-        public class PeriodicCommandRequest
-        {
-            public Handler handler;
-            public string cmd;
-
-            public PeriodicCommandRequest(Handler h, string command)
-            {
-                handler = h;
-                cmd = command;
-            }
-        }
-
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
-            //if (Debug)
-            //    Log.Debug(TAG, "onActivityResult " + resultCode);
+            if (Debug)
+                Log.Debug(TAG, "onActivityResult " + resultCode);
 
             switch (requestCode)
             {

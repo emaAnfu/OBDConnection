@@ -61,9 +61,6 @@ namespace OBDConnection
         public const int STATE_FAILED = 4;
         public const int STATE_LOST = 5;
 
-        //aggiungo per comodità:
-        Context contesto;
-
         /// <summary>
         /// Constructor. Prepares a new BluetoothChat session.
         /// </summary>
@@ -78,8 +75,6 @@ namespace OBDConnection
             _adapter = BluetoothAdapter.DefaultAdapter;
             _state = STATE_NONE;
             _handler = handler;
-
-            contesto = context;
         }
 
         /// <summary>
@@ -225,8 +220,8 @@ namespace OBDConnection
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Stop()
         {
-            //if (Debug)
-            //    Log.Debug(TAG, "stop");
+            if (Debug)
+                Log.Debug(TAG, "stop");
 
             if (connectThread != null)
             {
@@ -334,7 +329,7 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "listen() failed", e);
+                    Log.Error(TAG, "listen() failed", e);
                 }
                 mmServerSocket = tmp;
             }
@@ -356,7 +351,7 @@ namespace OBDConnection
                     }
                     catch (Java.IO.IOException e)
                     {
-                        //Log.Error(TAG, "accept() failed", e);
+                        Log.Error(TAG, "accept() failed", e);
                         break;
                     }
 
@@ -381,7 +376,7 @@ namespace OBDConnection
                                     }
                                     catch (Java.IO.IOException e)
                                     {
-                                        //Log.Error(TAG, "Could not close unwanted socket", e);
+                                        Log.Error(TAG, "Could not close unwanted socket", e);
                                     }
                                     break;
                             }
@@ -389,14 +384,14 @@ namespace OBDConnection
                     }
                 }
 
-                //if (Debug)
-                //    Log.Info(TAG, "END mAcceptThread");
+                if (Debug)
+                    Log.Info(TAG, "END mAcceptThread");
             }
 
             public void Cancel()
             {
-                //if (Debug)
-                //    Log.Debug(TAG, "cancel " + this.ToString());
+                if (Debug)
+                    Log.Debug(TAG, "cancel " + this.ToString());
 
                 try
                 {
@@ -404,7 +399,7 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "close() of server failed", e);
+                    Log.Error(TAG, "close() of server failed", e);
                 }
             }
         }
@@ -432,7 +427,7 @@ namespace OBDConnection
                 try
                 {
 #if (TO_PHONE)
-                    tmp = device.CreateInsecureRfcommSocketToServiceRecord(MY_UUID_PHONE);
+                    tmp = device.CreateRfcommSocketToServiceRecord(MY_UUID_PHONE);
 #endif
 #if (TO_OBD)
                     tmp = device.CreateRfcommSocketToServiceRecord(MY_UUID_OBD);
@@ -465,7 +460,7 @@ namespace OBDConnection
                 {
                     Log.Error(TAG, "connect() failed", e);
 
-                    /* Trying the alternative way: this is needed with android>4.2 */
+                    /* Trying the alternative way: this is needed with android>4.2 (for serial devices) */
                     try
                     {
                         IntPtr createRfcommSocket = JNIEnv.GetMethodID(mmDevice.Class.Handle, "createRfcommSocket", "(I)Landroid/bluetooth/BluetoothSocket;");
@@ -531,7 +526,7 @@ namespace OBDConnection
 
             public ConnectedThread(BluetoothSocket socket, OBDConnectionService service)
             {
-                //Log.Debug(TAG, "create ConnectedThread: ");
+                Log.Debug(TAG, "create ConnectedThread: ");
 
                 mmSocket = socket;
                 _service = service;
@@ -600,7 +595,7 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "Exception during write", e);
+                    Log.Error(TAG, "Exception during write", e);
                 }
             }
 
@@ -612,7 +607,7 @@ namespace OBDConnection
                 }
                 catch (Java.IO.IOException e)
                 {
-                    //Log.Error(TAG, "close() of connect socket failed", e);
+                    Log.Error(TAG, "close() of connect socket failed", e);
                 }
             }
         }

@@ -112,7 +112,7 @@ namespace OBDConnection
         /// Reads the OBD-II response
         /// </summary>
         //protected void ReadResult(Stream inputStream)
-        protected void ReadResult(byte[] bufferIn, int bufLen)
+        public void ReadResult(byte[] bufferIn, int bufLen)
         {
             ReadRawData(bufferIn, bufLen);
             //CheckForErrors();

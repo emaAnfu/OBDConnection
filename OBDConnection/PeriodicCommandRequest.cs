@@ -16,11 +16,13 @@ namespace OBDConnection
     {
         public Handler handler;
         public string cmd;
+        public int messageType;
 
-        public PeriodicCommandRequest(Handler h, string command)
+        public PeriodicCommandRequest(Handler h, string command, int messageType)
         {
             handler = h;
             cmd = command;
+            this.messageType = messageType;
         }
     }
 }

@@ -58,12 +58,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Speed" />
-        <Button
-            android:id="@+id/button_seeRPM"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="See RPM" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -89,28 +83,18 @@
         android:layout_height="wrap_content"
         android:id="@+id/linearLayout_commands">
         <Button
-            android:id="@+id/button_startSendSpeed"
+            android:id="@+id/button_startSendSpeedRPM"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="start speed" />
+            android:text="start speed rpm" />
         <Button
-            android:id="@+id/button_stopSendSpeed"
+            android:id="@+id/button_stopSendSpeedRPM"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="stop speed" />
+            android:text="stop speed rpm" />
     </LinearLayout>
-    <Button
-      android:id="@+id/button_saveData"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="Save data" />
-    <Button
-      android:id="@+id/button_loadData"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="Load data" />
     <ListView
         android:id="@+id/in"
         android:layout_width="match_parent"

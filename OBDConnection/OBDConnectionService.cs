@@ -268,6 +268,27 @@ namespace OBDConnection
         }
 
         /// <summary>
+        /// Read from the ConnectedThread in an unsynchronized manner
+        /// </summary>
+        /// <returns></returns>
+        public string Read()
+        {
+            // Create temporary object
+            ConnectedThread r;
+            // Synchronize a copy of the ConnectedThread
+            lock (this)
+            {
+                if (_state != STATE_CONNECTED)
+                {
+                    return null;
+                }
+                r = connectedThread;
+            }
+            // Perform the read unsynchronized
+            return r.Read();
+        }
+
+        /// <summary>
         /// Indicate that the connection attempt failed and notify the UI Activity.
         /// </summary>
         private void ConnectionFailed()
@@ -548,33 +569,57 @@ namespace OBDConnection
                 mmOutStream = tmpOut;
             }
 
-            public override void Run()
+            //public override void Run()
+            //{
+            //    Log.Info(TAG, "BEGIN mConnectedThread");
+
+            //    byte[] buffer = new byte[1024];//1024
+            //    int bytes;
+
+            //    // Keep listening to the InputStream while connected 
+            //    while (true)
+            //    {
+            //        try
+            //        {
+            //            // Read from the InputStream
+            //            bytes = mmInStream.Read(buffer, 0, buffer.Length);
+
+            //            // Send the obtained bytes to the UI Activity
+            //            _service._handler.ObtainMessage(OBDConnection.MESSAGE_READ, bytes, -1, buffer)
+            //                .SendToTarget();
+            //        }
+            //        catch (Java.IO.IOException e)
+            //        {
+            //            Log.Error(TAG, "disconnected", e);
+
+            //            _service.ConnectionLost();
+            //            break;
+            //        }
+            //    }
+            //}
+
+            /// <summary>
+            /// Read from the connected OutStream.
+            /// </summary>
+            /// <returns>A string composed by the received bytes until the '>' character.</returns>
+            public string Read()
             {
-                Log.Info(TAG, "BEGIN mConnectedThread");
+                sbyte b = 0;
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                byte[] buffer = new byte[1024];//1024
-                int bytes;
-
-                // Keep listening to the InputStream while connected 
-                while (true)
+                // read until '>' arrives OR end of stream reached
+                // -1 if the end of the stream is reached
+                char c;
+                while((b = (sbyte)mmInStream.ReadByte()) > -1)
                 {
-                    try
+                    c = (char)b;
+                    if(c == '>')
                     {
-                        // Read from the InputStream
-                        bytes = mmInStream.Read(buffer, 0, buffer.Length);
-
-                        // Send the obtained bytes to the UI Activity
-                        _service._handler.ObtainMessage(OBDConnection.MESSAGE_READ, bytes, -1, buffer)
-                            .SendToTarget();
-                    }
-                    catch (Java.IO.IOException e)
-                    {
-                        Log.Error(TAG, "disconnected", e);
-
-                        _service.ConnectionLost();
                         break;
                     }
+                    sb.Append(c);
                 }
+                return sb.ToString();
             }
 
             /// <summary>

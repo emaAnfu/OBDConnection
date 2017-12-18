@@ -15,13 +15,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ATreset" />
+            android:text="ATres" />
         <Button
             android:id="@+id/button_atAutomaticProtocol"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ATauto" />
+            android:text="ATaut" />
         <Button
             android:id="@+id/button_atReadVoltage"
             android:layout_width="match_parent"
@@ -65,35 +65,17 @@
         android:layout_height="wrap_content"
         android:id="@+id/linearLayout_commands">
         <Button
-            android:id="@+id/button_startSendRPM"
+            android:id="@+id/button_startMeasure"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="start rpm" />
+            android:text="start measure" />
         <Button
-            android:id="@+id/button_stopSendRPM"
+            android:id="@+id/button_stopMeasure"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="stop rpm" />
-    </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout_commands">
-        <Button
-            android:id="@+id/button_startSendSpeedRPM"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="start speed rpm" />
-        <Button
-            android:id="@+id/button_stopSendSpeedRPM"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="stop speed rpm" />
+            android:text="stop measure" />
     </LinearLayout>
     <ListView
         android:id="@+id/in"
@@ -102,21 +84,4 @@
         android:stackFromBottom="true"
         android:transcriptMode="alwaysScroll"
         android:layout_weight="1" />
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout1">
-        <EditText
-            android:id="@+id/edit_text_out"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="bottom" />
-        <Button
-            android:id="@+id/button_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="send" />
-    </LinearLayout>
 </LinearLayout>

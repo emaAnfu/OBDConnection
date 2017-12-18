@@ -66,6 +66,7 @@
     <Compile Include="DeviceListActivity.cs" />
     <Compile Include="OBDConnectionService.cs" />
     <Compile Include="PeriodicCommandRequest.cs" />
+    <Compile Include="RequestCommandThread.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RPMCommand.cs" />

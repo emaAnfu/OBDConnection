@@ -23,6 +23,8 @@ namespace OBDConnection
         List<string> linesToWrite;
         string nameFile;
 
+        public List<double> timeOfResponses;
+
         public List<string> LinesToWrite
         {
             get { return linesToWrite; }
@@ -38,10 +40,11 @@ namespace OBDConnection
         /// </summary>
         /// <param name="nameFile">
         /// Name of the txt file stored in Documents.</param>
-        public DataStorage(string nameFile = "OBDConnection.txt")
+        public DataStorage(string nameFile = "OBDConnection")
         {
             linesToWrite = new List<string>();
-            this.nameFile = nameFile;
+            this.nameFile = String.Format("{0}_{1:dd-MM-yy_HH:mm:ss}.txt", nameFile, DateTime.Now);
+            timeOfResponses = new List<double>();
         }
 
         /// <summary>
@@ -59,55 +62,28 @@ namespace OBDConnection
         public void Save()
         {
             var directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments);
-            var directoryPath = directory.AbsolutePath;
+            var directoryPath = directory.AbsolutePath + "/OBDConnection";
             var filename = System.IO.Path.Combine(directoryPath, nameFile);
                     
             // Write
             using (var streamWriter = new StreamWriter(filename, true))
             {
+                // writing measures
                 foreach(string s in linesToWrite)
                 {
                     streamWriter.WriteLine(s);
                 }
+                // writing deltaT for each single measure
+                streamWriter.WriteLine("Time of responses: ");
+                double sum = 0;
+                foreach(double i in timeOfResponses)
+                {
+                    sum += i;
+                    streamWriter.WriteLine(i);
+                }
+                // writing mean deltaT
+                streamWriter.WriteLine("Mean time: " + (sum / timeOfResponses.Count));
             }
-        }
-
-        /// <summary>
-        /// To erase the file content.
-        /// </summary>
-        public void ResetFile()
-        {
-            var directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments);
-            var directoryPath = directory.AbsolutePath;
-            var filename = System.IO.Path.Combine(directoryPath, nameFile);
-
-            FileStream storedFile = File.Open(filename, FileMode.Open);
-
-            // Set the length of filestream to 0 and flush it to the physical file.
-            storedFile.SetLength(0);
-            storedFile.Close(); // This flushes the content, too.
-        }
-
-        /// <summary>
-        /// To load the data saved, maybe useful if you want to check the current file content before 
-        /// the beginning of a new drive session.
-        /// </summary>
-        /// <returns></returns>
-        public List<string> Load()
-        {
-            var directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments);
-            var directoryPath = directory.AbsolutePath;
-            var filename = System.IO.Path.Combine(directoryPath, nameFile);
-
-            List<string> dataRead = new List<string>();
-
-            // Write
-            using (var streamReader = new StreamReader(filename, true))
-            {
-                dataRead.Add(streamReader.ReadLine());
-            }
-
-            return dataRead;
         }
     }
 }

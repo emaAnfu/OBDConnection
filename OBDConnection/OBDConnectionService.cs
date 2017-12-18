@@ -608,18 +608,28 @@ namespace OBDConnection
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 // read until '>' arrives OR end of stream reached
-                // -1 if the end of the stream is reached
+                // -1 if the end of the stream is reached -> it doesn't work
                 char c;
-                while((b = (sbyte)mmInStream.ReadByte()) > -1)
+                try
                 {
-                    c = (char)b;
-                    if(c == '>')
-                    {
-                        break;
+                    while ((b = (sbyte)mmInStream.ReadByte()) > -1)
+                    { 
+                        c = (char)b;
+                        if (c == '>')
+                        {
+                            break;
+                        }
+                        sb.Append(c);
                     }
-                    sb.Append(c);
+                    return sb.ToString();
                 }
-                return sb.ToString();
+                catch (Java.IO.IOException e)
+                {
+                    Log.Error(TAG, "disconnected", e);
+
+                    _service.ConnectionLost();
+                    return null;
+                }
             }
 
             /// <summary>

@@ -16,7 +16,6 @@ C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\res\men
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\R.cs.flag
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\uploadflags.txt
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\res\drawable\fiestaicon.png
-C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\OBDConnection.csprojResolveAssemblyReference.cache
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\bin\Debug\OBDConnection.dll.mdb
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\bin\Debug\Java.Interop.dll.mdb
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\bin\Debug\Mono.Android.dll.mdb

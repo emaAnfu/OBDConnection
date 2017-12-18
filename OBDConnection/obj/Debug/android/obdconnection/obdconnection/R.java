@@ -23,19 +23,14 @@ public final class R {
         public static final int button_obdRPM=0x7f06000d;
         public static final int button_obdSpeed=0x7f06000e;
         public static final int button_scan=0x7f060006;
-        public static final int button_send=0x7f060016;
-        public static final int button_startSendRPM=0x7f06000f;
-        public static final int button_startSendSpeedRPM=0x7f060011;
-        public static final int button_stopSendRPM=0x7f060010;
-        public static final int button_stopSendSpeedRPM=0x7f060012;
-        public static final int discoverable=0x7f060018;
-        public static final int edit_text_out=0x7f060015;
-        public static final int in=0x7f060013;
-        public static final int linearLayout1=0x7f060014;
+        public static final int button_startMeasure=0x7f06000f;
+        public static final int button_stopMeasure=0x7f060010;
+        public static final int discoverable=0x7f060013;
+        public static final int in=0x7f060011;
         public static final int linearLayout_commands=0x7f060007;
         public static final int new_devices=0x7f060005;
         public static final int paired_devices=0x7f060003;
-        public static final int scan=0x7f060017;
+        public static final int scan=0x7f060012;
         public static final int title_left_text=0x7f060000;
         public static final int title_new_devices=0x7f060004;
         public static final int title_paired_devices=0x7f060002;
@@ -53,12 +48,13 @@ public final class R {
     }
     public static final class string {
         public static final int ApplicationName=0x7f040001;
-        /**  Options Menu 
-         */
-        public static final int Discoverable=0x7f040010;
         public static final int Hello=0x7f040000;
         public static final int bt_not_enabled_leaving=0x7f040004;
         public static final int button_scan=0x7f04000f;
+        public static final int connect=0x7f040011;
+        /**  Options Menu 
+         */
+        public static final int discoverable=0x7f040010;
         public static final int im_discoverable=0x7f040008;
         public static final int none_found=0x7f04000c;
         public static final int none_paired=0x7f04000b;

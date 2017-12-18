@@ -39,9 +39,7 @@ namespace OBDConnection
         public const int MESSAGE_TOAST = 5;
 
         // Message types sent from the Timer Handler
-        public const int TIMER_RPM_RAISED = 6;
-        public const int TIMER_SPEED_RPM_RAISED = 7;
-        public const int TIMER_TIMEFLOW_RAISED = 8;
+        public const int TIMER_TIMEFLOW_RAISED = 6;
 
         // Key names received from the BluetoothChatService Handler
         public const string DEVICE_NAME = "device_name";
@@ -51,8 +49,6 @@ namespace OBDConnection
         private BluetoothAdapter bluetoothAdapter = null;
         // Member object for the chat services
         private OBDConnectionService connectionService = null;
-        // String buffer for outgoing messages
-        private StringBuffer outStringBuffer;
         // Name of the connected device
         protected string connectedDeviceName = null;
 
@@ -61,8 +57,6 @@ namespace OBDConnection
         // Layout Views
         protected TextView title;
         private ListView conversationView;
-        private EditText outEditText;
-        private Button sendButton;
         // AT
         private Button button_atReset;
         private Button button_atAutomaticProtocol;
@@ -73,10 +67,8 @@ namespace OBDConnection
         private Button button_obdRPM;
         private Button button_obdSpeed;
         // Multiple requests
-        private Button button_startSendRPM;
-        private Button button_stopSendRPM;
-        private Button button_startSendSpeedRPM;
-        private Button button_stopSendSpeedRPM;
+        private Button button_startMeasure;
+        private Button button_stopMeasure;
 
         // Various        
 
@@ -95,12 +87,8 @@ namespace OBDConnection
         byte[] readBuf;
         int lenghtBuf;
 
-        // Command objects
-        RPMCommand rpmCommand;
-
-        // To storage data
-        DataStorage RPMstorage_raw;
-        DataStorage SPEEDStorage_raw;
+        // Thread to command requests
+        RequestCommandThread requestCommandThread;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -171,27 +159,6 @@ namespace OBDConnection
             conversationView = FindViewById<ListView>(Resource.Id.@in);
             conversationView.Adapter = conversationArrayAdapter;
 
-            // Initialize the compose field with a listener for the return key
-            outEditText = FindViewById<EditText>(Resource.Id.edit_text_out);
-            // The action listener for the EditText widget, to listen for the return key
-            outEditText.EditorAction += delegate (object sender, TextView.EditorActionEventArgs e) {
-                // If the action is a key-up event on the return key, send the message
-                if (e.ActionId == ImeAction.ImeNull && e.Event.Action == KeyEventActions.Up)
-                {
-                    var message = new Java.Lang.String(((TextView)sender).Text);
-                    SendMessage(message);
-                }
-            };
-
-            // Initialize the send button with a listener that for click events
-            sendButton = FindViewById<Button>(Resource.Id.button_send);
-            sendButton.Click += delegate (object sender, EventArgs e) {
-                // Send a message using content of the edit text widget
-                var view = FindViewById<TextView>(Resource.Id.edit_text_out);
-                var message = new Java.Lang.String(view.Text);
-                SendMessage(message);
-            };
-
             /* Initialize the AT commands buttons with a listener that for click events */
 
             button_atReset = FindViewById<Button>(Resource.Id.button_atReset);
@@ -243,58 +210,28 @@ namespace OBDConnection
 
             /* Initialize the buttons for periodic requests with a listener that for click events */
 
-            button_startSendRPM = FindViewById<Button>(Resource.Id.button_startSendRPM);
-            button_startSendRPM.Click += delegate (object sender, EventArgs e) {
-                // raw data
-                RPMstorage_raw = new DataStorage("OBD_rpm_storage_raw.txt");
-                RPMstorage_raw.AppendLine("Start measure");
-                /* start timer for periodic request */
-                Ts_rpm = 200;
-                timer_rpm = CreateTimer(myHandler, TIMER_RPM_RAISED, Ts_rpm);
-                /* start timer to show the seconds flow */
+            button_startMeasure = FindViewById<Button>(Resource.Id.button_startMeasure);
+            button_startMeasure.Click += delegate (object sender, EventArgs e) {
+                // launch the thread to begin continuous request
+                requestCommandThread = new RequestCommandThread(connectionService);
+                requestCommandThread.Start();
+                // start timer to show the seconds flow 
                 time_sec = 0;
                 timeFlow = CreateTimer(myHandler, TIMER_TIMEFLOW_RAISED, 1000);
             };
-            button_stopSendRPM = FindViewById<Button>(Resource.Id.button_stopSendRPM);
-            button_stopSendRPM.Click += delegate (object sender, EventArgs e) {
-                timer_rpm.Dispose();
+            button_stopMeasure = FindViewById<Button>(Resource.Id.button_stopMeasure);
+            button_stopMeasure.Click += delegate (object sender, EventArgs e) {
+                // stop time flow timer
                 timeFlow.Dispose();
-                RPMstorage_raw.AppendLine("Finish measure");
-                RPMstorage_raw.Save();
-            };
-
-            button_startSendSpeedRPM = FindViewById<Button>(Resource.Id.button_startSendSpeedRPM);
-            button_startSendSpeedRPM.Click += delegate (object sender, EventArgs e) {
-                // raw data
-                RPMstorage_raw = new DataStorage("OBD_rpm_storage_raw.txt");
-                RPMstorage_raw.AppendLine("Start measure");
-                SPEEDStorage_raw = new DataStorage("OBD_speed_storage_raw.txt");
-                SPEEDStorage_raw.AppendLine("Start measure");
-                /* start timer for periodic request */
-                Ts_speed_rpm = 400;
-                timer_speed_rpm= CreateTimer(myHandler, TIMER_SPEED_RPM_RAISED, Ts_speed_rpm);
-                /* start timer to show the seconds flow */
-                time_sec = 0;
-                timeFlow = CreateTimer(myHandler, TIMER_TIMEFLOW_RAISED, 1000);
-            };
-            button_stopSendSpeedRPM = FindViewById<Button>(Resource.Id.button_stopSendSpeedRPM);
-            button_stopSendSpeedRPM.Click += delegate (object sender, EventArgs e) {
-                timer_speed_rpm.Dispose();
-                timeFlow.Dispose();
-                RPMstorage_raw.AppendLine("Finish measure");
-                RPMstorage_raw.Save();
-                SPEEDStorage_raw.AppendLine("Finish measure");
-                SPEEDStorage_raw.Save();
+                // stop measure session
+                requestCommandThread.Cancel();
+                requestCommandThread = null;
             };
 
             // Here there are universal operations:
 
             // Initialize the BluetoothChatService to perform bluetooth connections
             // -> done at the beginning of this function
-
-            // Initialize the buffer for outgoing messages
-            outStringBuffer = new StringBuffer("");
-            outEditText.Text = string.Empty;
         }
 
         /* Called by the timer delegate when timer expires */
@@ -390,10 +327,6 @@ namespace OBDConnection
                 // Get the message bytes and tell the BluetoothConnectionService to write
                 byte[] send = message.GetBytes();
                 connectionService.Write(send);
-
-                // Reset out string buffer to zero and clear the edit text field
-                outStringBuffer.SetLength(0);
-                outEditText.Text = string.Empty;
             }
             else
             {
@@ -454,30 +387,6 @@ namespace OBDConnection
                         Toast.MakeText(Application.Context, msg.Data.GetString(TOAST), ToastLength.Short).Show();
                         break;
                     /* Messages from timer delegate */
-                    case TIMER_RPM_RAISED:
-                        OBDConnection.SendCommand(ListOfCommands.OBD_rpmCommand);
-                        string s1 = OBDConnection.connectionService.Read();
-                        if (OBDConnection.RPMstorage_raw != null)
-                        {
-                            OBDConnection.RPMstorage_raw.AppendLine(s1);
-                        }
-                        break;
-                    case TIMER_SPEED_RPM_RAISED:
-                        // send request for RPM
-                        OBDConnection.SendCommand(ListOfCommands.OBD_rpmCommand);
-                        string s2 = OBDConnection.connectionService.Read();
-                        if (OBDConnection.RPMstorage_raw != null)
-                        {
-                            OBDConnection.RPMstorage_raw.AppendLine(s2);
-                        }
-                        //send request for speed
-                        OBDConnection.SendCommand(ListOfCommands.OBD_speedCommand);
-                        string s3 = OBDConnection.connectionService.Read();
-                        if (OBDConnection.SPEEDStorage_raw != null)
-                        {
-                            OBDConnection.SPEEDStorage_raw.AppendLine(s3);
-                        }
-                        break;
                     case TIMER_TIMEFLOW_RAISED:
                         OBDConnection.time_sec++;
                         OBDConnection.conversationArrayAdapter.Add(OBDConnection.time_sec);

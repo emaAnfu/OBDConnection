@@ -212,20 +212,27 @@ namespace OBDConnection
 
             button_startMeasure = FindViewById<Button>(Resource.Id.button_startMeasure);
             button_startMeasure.Click += delegate (object sender, EventArgs e) {
-                // launch the thread to begin continuous request
-                requestCommandThread = new RequestCommandThread(connectionService);
-                requestCommandThread.Start();
-                // start timer to show the seconds flow 
-                time_sec = 0;
-                timeFlow = CreateTimer(myHandler, TIMER_TIMEFLOW_RAISED, 1000);
+                // launch the thread to begin continuous request, if not already launched
+                if (requestCommandThread == null)
+                {
+                    requestCommandThread = new RequestCommandThread(connectionService);
+                    requestCommandThread.Start();
+                    // start timer to show the seconds flow 
+                    time_sec = 0;
+                    timeFlow = CreateTimer(myHandler, TIMER_TIMEFLOW_RAISED, 1000);
+                }
             };
             button_stopMeasure = FindViewById<Button>(Resource.Id.button_stopMeasure);
             button_stopMeasure.Click += delegate (object sender, EventArgs e) {
-                // stop time flow timer
-                timeFlow.Dispose();
                 // stop measure session
-                requestCommandThread.Cancel();
-                requestCommandThread = null;
+                if(requestCommandThread!=null)
+                {
+                    // stop time flow timer
+                    timeFlow.Dispose();
+                    // cancel thread
+                    requestCommandThread.Cancel();
+                    requestCommandThread = null;
+                }
             };
 
             // Here there are universal operations:

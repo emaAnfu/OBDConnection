@@ -48,12 +48,38 @@ namespace OBDConnection
             // Keep asking data until the thread is destroyed
             while (active)
             {
+                DateTime begin = DateTime.Now;
                 RequestRPM();
-                RequestSpeed();               
+                RequestSpeed();
+                DateTime end = DateTime.Now;
+                TimeSpan elapsedSpan = end - begin;
+                Thread.Sleep(-200);
             }
         }
 
         private void RequestRPM()
+        {
+            // Sending command
+            SendCommand(ListOfCommands.OBD_rpmCommand);
+            // Read response, add it in RAM 
+            string s = connectionService.Read();
+            RPMstorage_raw.AppendLine(s);
+        }
+
+        private void RequestSpeed()
+        {
+            // Sending command
+            SendCommand(ListOfCommands.OBD_speedCommand);
+            // Read response, add it in RAM
+            string s = connectionService.Read();
+            SpeedStorage_raw.AppendLine(s);
+        }
+
+        /// <summary>
+        /// Call this function to measure RPM and store response time of each reqeust.
+        /// Useful to do some analysis
+        /// </summary>
+        private void RequestRPMAndMeasureTime()
         {
             // Sending command
             SendCommand(ListOfCommands.OBD_rpmCommand);
@@ -66,7 +92,11 @@ namespace OBDConnection
             RPMstorage_raw.timeOfResponses.Add(elapsedSpan.TotalMilliseconds);
         }
 
-        private void RequestSpeed()
+        /// <summary>
+        /// Call this function to measure speed and store response time of each reqeust.
+        /// Useful to do some analysis
+        /// </summary>
+        private void RequestSpeedAndMeasureTime()
         {
             // Sending command
             SendCommand(ListOfCommands.OBD_speedCommand);

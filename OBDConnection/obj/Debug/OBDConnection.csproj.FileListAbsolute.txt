@@ -40,5 +40,6 @@ C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\android
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\android\assets\System.ServiceModel.Internals.dll.mdb
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\android\assets\System.Xml.dll.mdb
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\android\assets\System.Xml.Linq.dll.mdb
+C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\OBDConnection.csprojResolveAssemblyReference.cache
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\obj\Debug\OBDConnection.dll.mdb
 C:\Users\emanu\Documents\Programmi\OBDConnection\OBDConnection\bin\Debug\OBDConnection.dll.mdb

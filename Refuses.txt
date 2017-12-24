@@ -18,3 +18,15 @@ Short Name: Gear
 Equation: A
 
 string[] a = System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(filename));
+
+
+                // writing deltaT for each single measure
+                streamWriter.WriteLine("Time of responses: ");
+                double sum = 0;
+                foreach(double i in timeOfResponses)
+                {
+                    sum += i;
+                    streamWriter.WriteLine(i);
+                }
+                // writing mean deltaT
+                streamWriter.WriteLine("Mean time: " + (sum / timeOfResponses.Count));

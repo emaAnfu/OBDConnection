@@ -225,12 +225,12 @@ namespace OBDConnection
             button_stopMeasure = FindViewById<Button>(Resource.Id.button_stopMeasure);
             button_stopMeasure.Click += delegate (object sender, EventArgs e) {
                 // stop measure session
-                if(requestCommandThread!=null)
+                if(requestCommandThread!=null && requestCommandThread.isRunning==false)
                 {
                     // stop time flow timer
                     timeFlow.Dispose();
                     // cancel thread
-                    requestCommandThread.Cancel();
+                    //requestCommandThread.Cancel(); //done automatically by Run()
                     requestCommandThread = null;
                 }
             };

@@ -20,10 +20,13 @@ namespace OBDConnection
     /// </summary>
     public class DataStorage
     {
+        // List of data to write
         List<string> linesToWrite;
+        // Name of file that will be stored on memory
         string nameFile;
-
-        public List<double> timeOfResponses;
+        // List of double if you need to do some processing before converting them to string
+        // (not implemented yet)
+        List<double> doubleToWrite;
 
         public List<string> LinesToWrite
         {
@@ -35,6 +38,11 @@ namespace OBDConnection
             get { return nameFile; }
         }
 
+        public List<double> DoubleToWrite
+        {
+            get { return doubleToWrite; }
+        }
+
         /// <summary>
         /// Constructor for the dataStorage for a particular signal.
         /// </summary>
@@ -43,8 +51,8 @@ namespace OBDConnection
         public DataStorage(string nameFile = "OBDConnection")
         {
             linesToWrite = new List<string>();
-            this.nameFile = String.Format("{0}_{1:dd-MM-yy_HH:mm:ss}.txt", nameFile, DateTime.Now);
-            timeOfResponses = new List<double>();
+            this.nameFile = String.Format("{0:dd-MM-yy_HH-mm-ss}_{1}.txt", DateTime.Now, nameFile);
+            doubleToWrite = new List<double>();
         }
 
         /// <summary>
@@ -54,6 +62,26 @@ namespace OBDConnection
         public void AppendLine(string line)
         {
             linesToWrite.Add(line);
+        }
+
+        /// <summary>
+        /// Call this to copy the list of double to the list of lines
+        /// </summary>
+        public void CopyDoubleToLines()
+        {
+            foreach (double d in doubleToWrite)
+            {
+                linesToWrite.Add(d.ToString());
+            }
+        }
+
+        /// <summary>
+        /// To add a double to the list<double> 
+        /// </summary>
+        /// <param name="d"></param>
+        public void AppendDouble(double d)
+        {
+            doubleToWrite.Add(d);
         }
 
         /// <summary>
@@ -68,21 +96,11 @@ namespace OBDConnection
             // Write
             using (var streamWriter = new StreamWriter(filename, true))
             {
-                // writing measures
+                // writing lines
                 foreach(string s in linesToWrite)
                 {
                     streamWriter.WriteLine(s);
                 }
-                // writing deltaT for each single measure
-                streamWriter.WriteLine("Time of responses: ");
-                double sum = 0;
-                foreach(double i in timeOfResponses)
-                {
-                    sum += i;
-                    streamWriter.WriteLine(i);
-                }
-                // writing mean deltaT
-                streamWriter.WriteLine("Mean time: " + (sum / timeOfResponses.Count));
             }
         }
     }

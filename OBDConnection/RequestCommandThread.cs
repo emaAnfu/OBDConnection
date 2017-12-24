@@ -21,12 +21,20 @@ namespace OBDConnection
     {
         // For bt connection handling
         OBDConnectionService connectionService;
-        // Used to destroy thread
-        bool active = true;
+        // Samples counter
+        int samplesCounter;
+        // Used to monitor the state of this thread from the main activity
+        public bool isRunning = false;
 
         // To storage data
         DataStorage RPMstorage_raw;
         DataStorage SpeedStorage_raw;
+        DataStorage TimeOfResponses;
+
+        // To measure time responses
+        DateTime begin;
+        DateTime end;
+        TimeSpan elapsedSpan;
 
         /// <summary>
         /// Create the thread which, when it starts, handles periodic request and data storage.
@@ -38,6 +46,7 @@ namespace OBDConnection
             connectionService = cs;
             RPMstorage_raw = new DataStorage("rpm_measure");
             SpeedStorage_raw = new DataStorage("speed_measure");
+            TimeOfResponses = new DataStorage("time_of_response");
         }
 
         public override void Run()
@@ -45,16 +54,22 @@ namespace OBDConnection
             // A new session of measurement starts
             RPMstorage_raw.AppendLine("Start measure");
             SpeedStorage_raw.AppendLine("Start measure");
-            // Keep asking data until the thread is destroyed
-            while (active)
+            TimeOfResponses.AppendLine("Start measure");
+            samplesCounter = 0;
+            isRunning = true;
+            // Take 1000 samples (see documentations for details)
+            while (samplesCounter < 1000)
             {
-                DateTime begin = DateTime.Now;
+                begin = DateTime.Now;
                 RequestRPM();
                 RequestSpeed();
-                DateTime end = DateTime.Now;
-                TimeSpan elapsedSpan = end - begin;
-                Thread.Sleep(-200);
+                end = DateTime.Now;
+                elapsedSpan = end - begin;
+                TimeOfResponses.AppendLine(elapsedSpan.TotalMilliseconds.ToString());
+                TimeOfResponses.AppendDouble(elapsedSpan.TotalMilliseconds);
+                samplesCounter++;
             }
+            Cancel();
         }
 
         private void RequestRPM()
@@ -75,48 +90,19 @@ namespace OBDConnection
             SpeedStorage_raw.AppendLine(s);
         }
 
-        /// <summary>
-        /// Call this function to measure RPM and store response time of each reqeust.
-        /// Useful to do some analysis
-        /// </summary>
-        private void RequestRPMAndMeasureTime()
+        private void Cancel()
         {
-            // Sending command
-            SendCommand(ListOfCommands.OBD_rpmCommand);
-            // Read response, add it in RAM and measure time
-            DateTime begin = DateTime.Now;
-            string s = connectionService.Read();
-            RPMstorage_raw.AppendLine(s);
-            DateTime end = DateTime.Now;
-            TimeSpan elapsedSpan = end - begin;
-            RPMstorage_raw.timeOfResponses.Add(elapsedSpan.TotalMilliseconds);
-        }
-
-        /// <summary>
-        /// Call this function to measure speed and store response time of each reqeust.
-        /// Useful to do some analysis
-        /// </summary>
-        private void RequestSpeedAndMeasureTime()
-        {
-            // Sending command
-            SendCommand(ListOfCommands.OBD_speedCommand);
-            // Read response, add it in RAM and measure time
-            DateTime begin = DateTime.Now;
-            string s = connectionService.Read();
-            SpeedStorage_raw.AppendLine(s);
-            DateTime end = DateTime.Now;
-            TimeSpan elapsedSpan = end - begin;
-            SpeedStorage_raw.timeOfResponses.Add(elapsedSpan.TotalMilliseconds);
-        }
-
-        public void Cancel()
-        {
+            // Close measure session in files
+            RPMstorage_raw.AppendLine("Finish measure");
+            SpeedStorage_raw.AppendLine("Finish measure");
             // Storage data
             RPMstorage_raw.Save();
             SpeedStorage_raw.Save();
-
-            // Destroy this thread
-            active = false;
+            // Manage time of responses file
+            CloseTimeMeasuringFile();
+            // Update status
+            Toast.MakeText(Application.Context, "Session finish.", ToastLength.Long).Show();
+            isRunning = false;
         }
 
         /// <summary>
@@ -154,6 +140,25 @@ namespace OBDConnection
                 byte[] send = message.GetBytes();
                 connectionService.Write(send);
             }
+        }
+
+        /// <summary>
+        /// To manage the closing of file with the samples time storing
+        /// </summary>
+        private void CloseTimeMeasuringFile()
+        {
+            // to write each single measure time
+            TimeOfResponses.CopyDoubleToLines();
+            TimeOfResponses.AppendLine("Mean time of response:");
+            // computing mean response time
+            double sum = 0;
+            foreach (double i in TimeOfResponses.DoubleToWrite)
+            {
+                sum += i;
+            }
+            TimeOfResponses.AppendLine((sum / TimeOfResponses.DoubleToWrite.Count).ToString());
+            TimeOfResponses.AppendLine("Finish measure.");
+            TimeOfResponses.Save();
         }
     }
 }

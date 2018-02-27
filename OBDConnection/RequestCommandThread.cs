@@ -65,7 +65,6 @@ namespace OBDConnection
                 RequestSpeed();
                 end = DateTime.Now;
                 elapsedSpan = end - begin;
-                TimeOfResponses.AppendLine(elapsedSpan.TotalMilliseconds.ToString());
                 TimeOfResponses.AppendDouble(elapsedSpan.TotalMilliseconds);
                 samplesCounter++;
             }
